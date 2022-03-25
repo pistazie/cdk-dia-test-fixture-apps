@@ -9,12 +9,12 @@ import {StackWithTopic} from "./stack-with-topic"
 export class StackWithFunction extends cdk.Stack {
 
   constructor(scope: Construct, id: string, stackWithQueue: StackWithTopic, props?: cdk.StackProps) {
-    super(scope, id, props);
+    super(scope, id, props)
 
     const queue = new sqs.Queue(this, 'the-queue')
     stackWithQueue.topic.addSubscription(new sns_subscriptions.SqsSubscription(queue))
 
-    new lambda.Function(this,'the-function',{
+    const function1 = new lambda.Function(this,'the-function',{
       code: lambda.Code.fromInline("console.log('hi')"),
       handler: 'index',
       runtime:lambda.Runtime.NODEJS_12_X,
@@ -22,5 +22,7 @@ export class StackWithFunction extends cdk.Stack {
         TOPIC_ARN: stackWithQueue.topic.topicArn
       }
     })
+
+    stackWithQueue.bucket.grantWrite(function1)
   }
 }
